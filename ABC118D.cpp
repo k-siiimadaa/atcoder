@@ -1,37 +1,47 @@
 #include <bits/stdc++.h>
 using namespace std;
+typedef long long ll;
+typedef vector<ll> vll;
 typedef vector<int> vi;
-typedef vector<vi> vvi;
 
-map<int, int> n_mat={{1,2}, {2,5}, {3,5}, {4,4}, {5,5}, {6,6},{7,3},{8,7},{9,6}};
+
+vi binary_exp(ll a){
+  vi ans(50);
+  for (int i=0;i<50;++i){
+    ans[i]=(a>>i)&1;
+  }
+  return ans;
+}
 
 int main(){
-  int N, M;cin>>N>>M;
-  vi A;
-  for (int i=0;i<M;++i){int a;cin>>a;A.push_back(a);}
-
-  vi u(10,-1);
-  for (int i=2;i<=7;++i){
-    for(int m=0;m<M;++m){
-      if(n_mat[A[m]]==i) u[i]=max(u[i], A[m]);
-    }
+  int N;cin>>N;ll K;cin>>K;
+  vi counter(50,0);
+  vll A;
+  for (int i=0;i<N;++i){
+    ll a;cin>>a;vi ab=binary_exp(a);A.push_back(a);
+    for (int j=0;j<50;++j) counter[j]+=ab[j];
   }
 
-  vvi dp(N+10, vi(10, -1));
-  dp[0]=vi(10,0);
-
-  for (int i=0;i<=N;++i){
-    for (int j=2;j<=7;++j){
-      if(u[j]==-1) continue;
-      int p=10-u[j];
-      dp[i][p]++;dp[i][0]++;
-      dp[i+j]=max(dp[i], dp[i+j]);
-      dp[i][p]--;dp[i][0]--;
-    }
+  vi vote(50,0);
+  for (int i=0;i<50;++i){
+    if((N&1)&&counter[i]==N/2) vote[i]=1;
+    if(counter[i]<N/2) vote[i]=1;
   }
 
-  for (int i=1;i<10;++i){
-    for (int j=0;j<dp[N][i];++j){cout << 10-i;}
+  vi Kb=binary_exp(K);
+
+  ll X=0;
+  int flag=1;
+  for (int i=49;i>=0;--i){
+    if(flag==1&&Kb[i]==1&&vote[i]==1) X+=(ll)pow(2,i);
+    if(flag==1&&Kb[i]==1&&vote[i]==0) flag=0;
+    if(flag==0&&vote[i]==1) X+=(ll)pow(2,i);
   }
+
+  ll ans=0;
+  for (int i=0;i<N;++i){
+    ans+=X^A[i];
+  }
+  cout << ans << endl;
   return 0;
 }
